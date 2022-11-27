@@ -1,0 +1,25 @@
+{
+  "name": "elanco-aara",
+  "version": "1.0.0",
+  "description": "",
+  "main": "svr.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/howlingunit/elanco-AaRA.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/howlingunit/elanco-AaRA/issues"
+  },
+  "homepage": "https://github.com/howlingunit/elanco-AaRA#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

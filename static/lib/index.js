@@ -7,33 +7,42 @@ function init() {
     buttons.forEach((button) => button.addEventListener('click', getAndDispOptions))
 }
 
+
+function createList(options, parentNode, eventFunction){
+    const newOptions = document.createElement('div');
+    newOptions.classList.add('options');
+    options.forEach((opt) => {
+        const buttonBox = document.createElement('div');
+        const newButton = document.createElement('button');
+        newButton.textContent = opt;
+        newButton.dataset.name = opt;
+        buttonBox.dataset.name = opt;
+
+        buttonBox.appendChild(newButton);
+        newOptions.appendChild(buttonBox);
+
+        newButton.addEventListener('click', eventFunction);
+    });
+
+    parentNode.appendChild(newOptions);
+}
+
 async function getAndDispOptions(e){
     let options = await fetch(`https://engineering-task.elancoapps.com/api/${e.target.dataset.name}`);
     options = await options.json();
 
-    parentNode = e.target.parentNode
-    const newOptions = document.createElement('div');
-    newOptions.classList.add('options');
-    options.forEach((opt) => {
-        const newButton = document.createElement('button');
-        newButton.textContent = opt;
-        newButton.dataset.name = opt;
-        newOptions.appendChild(newButton);
+    parentNode = e.target.parentNode;
 
-        newButton.addEventListener('click', (elem) => {getAndDispdata(elem, e)});
-    });
-
-    newOptions.classList.add('options');
-    parentNode.appendChild(newOptions);
+    createList(options, parentNode, (clickedButton) => {getAndDispInstances(clickedButton, e.target)});
 
 }
 
-async function getAndDispdata(node, parentNode) {
+async function getAndDispInstances(node, parentNode) {
 
-    let data = await fetch(`https://engineering-task.elancoapps.com/api/${parentNode.target.dataset.name}/${node.target.dataset.name}`);
-    data = await data.json();
+    let data = await fetch(`https://engineering-task.elancoapps.com/api/${parentNode.dataset.name}/${node.target.dataset.name}`);
+    data = await data.json(); //fetch api dataset
 
-    const instances = {}
+    const instances = {} //seperate out the instances
     let oldInstance = null;
     for (let i = 0; i < data.length; i++) {
         const currentData = data[i];
@@ -48,7 +57,21 @@ async function getAndDispdata(node, parentNode) {
         oldInstance = currentInstance;
     }
 
-    console.log(instances)
+
+
+
+    createList(Object.keys(instances), node.target.parentNode, (e) => {dispData(e, instances[e.target.dataset.name])}); //list the instances
+
+}
+
+function dispData(e, instance) {
+    const text = document.createElement('p');
+    
+    console.log(instance)
+
+    text.textContent = instance;
+
+    e.target.parentNode.appendChild(text);
 }
 
 init();

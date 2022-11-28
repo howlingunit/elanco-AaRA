@@ -52,6 +52,7 @@ async function getAndDispInstances(node, parentNode) {
             instances[currentInstance].push(data[i]);
         } else {
             instances[currentInstance] = [];
+            instances[currentInstance].push(data[i]);
         }
 
         oldInstance = currentInstance;
@@ -65,13 +66,31 @@ async function getAndDispInstances(node, parentNode) {
 }
 
 function dispData(e, instance) {
-    const text = document.createElement('p');
+    // pull data from the instance
+    const appName = instance[0].Tags["app-name"];
+    const resource = instance[0].MeterCategory;
+    const daysRan = instance.length;
+    let avgCost = 0;
+    let overallCost = 0;
+
+    // getting costs
+    instance.forEach((day) => {avgCost += Number(day.Cost); overallCost += Number(day.Cost)});
+    avgCost = avgCost / instance.length;
+
     
-    console.log(instance)
+    // put data into template
+    const dataTemplate = document.querySelector('#data-template');
+    const clonedDataTemplate = dataTemplate.content.cloneNode(true);
 
-    text.textContent = instance;
 
-    e.target.parentNode.appendChild(text);
+    clonedDataTemplate.querySelector('#app-name').textContent += appName;
+    clonedDataTemplate.querySelector('#resource-name').textContent += resource;
+    clonedDataTemplate.querySelector('#days-ran').textContent += daysRan;
+    clonedDataTemplate.querySelector('#overall-cost').textContent += overallCost.toFixed(2);
+    clonedDataTemplate.querySelector('#average-cost').textContent += avgCost.toFixed(2);
+
+
+    e.target.parentNode.appendChild(clonedDataTemplate);
 }
 
 init();

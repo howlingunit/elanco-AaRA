@@ -67,27 +67,68 @@ async function getAndDispInstances(node, parentNode) {
 
 function dispData(e, instance) {
     // pull data from the instance
+
+    // Instance information
+    const serviceName = instance[0]["ServiceName"];
+    const loc = instance[0]["Location"];
+    const unitOfMeasure = instance[0]["UnitOfMeasure"];
+
+    //resource information
+    const resource = instance[0]["MeterCategory"];
+    const resourceGroup = instance[0]['ResourceGroup'];
+    const resourceLocal = instance[0]['ResourceLocation'];
+
+    // App information
     const appName = instance[0].Tags["app-name"];
-    const resource = instance[0].MeterCategory;
+    const env = instance[0].Tags["environment"];
+    const businessUnit = instance[0].Tags["business-unit"];
+
+    // Cost information
     const daysRan = instance.length;
     let avgCost = 0;
     let overallCost = 0;
+    let avgConsumption = 0;
+    let overallConsumption = 0;
 
-    // getting costs
-    instance.forEach((day) => {avgCost += Number(day.Cost); overallCost += Number(day.Cost)});
+    // calculating averages 
+    instance.forEach((day) => {
+        avgCost += Number(day.Cost);
+        overallCost += Number(day.Cost)
+
+        avgConsumption += Number(day.ConsumedQuantity);
+        overallConsumption += Number(day.ConsumedQuantity);
+    });
+
     avgCost = avgCost / instance.length;
-
-    
+    avgConsumption = avgConsumption / instance.length;
+    console.log(avgConsumption)
     // put data into template
     const dataTemplate = document.querySelector('#data-template');
     const clonedDataTemplate = dataTemplate.content.cloneNode(true);
 
 
-    clonedDataTemplate.querySelector('#app-name').textContent += appName;
+    //Instance information
+    clonedDataTemplate.querySelector('#service-name').textContent += serviceName;
+    clonedDataTemplate.querySelector('#loc').textContent += loc;
+    clonedDataTemplate.querySelector('#unit-of-measure').textContent += unitOfMeasure;
+
+    // Resource information
     clonedDataTemplate.querySelector('#resource-name').textContent += resource;
+    clonedDataTemplate.querySelector('#resource-group').textContent += resourceGroup;
+    clonedDataTemplate.querySelector('#res-loc').textContent += resourceLocal;
+    
+    // App information
+    clonedDataTemplate.querySelector('#app-name').textContent += appName;
+    clonedDataTemplate.querySelector('#env').textContent += env;
+    clonedDataTemplate.querySelector('#business-unit').textContent += businessUnit;
+
+    // Cost information
     clonedDataTemplate.querySelector('#days-ran').textContent += daysRan;
     clonedDataTemplate.querySelector('#overall-cost').textContent += overallCost.toFixed(2);
     clonedDataTemplate.querySelector('#average-cost').textContent += avgCost.toFixed(2);
+    clonedDataTemplate.querySelector('#overall-consumed').textContent += overallConsumption
+    clonedDataTemplate.querySelector('#average-consumption').textContent += avgConsumption
+
 
 
     e.target.parentNode.appendChild(clonedDataTemplate);

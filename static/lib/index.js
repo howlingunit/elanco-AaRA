@@ -58,8 +58,32 @@ async function getAndDispInstances(node, parentNode) {
         oldInstance = currentInstance;
     }
 
+    console.log(instances)
 
+    // Create instance information
+    // Get instances information
+    const name = parentNode.dataset.name;
+    const amtOfInstances = Object.keys(instances).length;
+    let totalCost = 0;
+    let avgCost = 0;
 
+    for (let i = 0; i < data.length; i++) {
+        totalCost += Number(data[i].Cost);
+        avgCost += Number(data[i].Cost);
+    };
+
+    avgCost = avgCost / data.length;
+
+    // display information
+    const instanceInfoTemplate = document.querySelector('#instance-template');
+    const clonedinstanceInfoTemplate = instanceInfoTemplate.content.cloneNode(true);
+
+    clonedinstanceInfoTemplate.querySelector('#instance-title').textContent += name;
+    clonedinstanceInfoTemplate.querySelector('#amt-of-instances').textContent += amtOfInstances;
+    clonedinstanceInfoTemplate.querySelector('#total-cost').textContent += totalCost.toFixed(2);
+    clonedinstanceInfoTemplate.querySelector('#avg-cost').textContent += avgCost.toFixed(2);
+
+    node.target.parentNode.appendChild(clonedinstanceInfoTemplate);
 
     createList(Object.keys(instances), node.target.parentNode, (e) => {dispData(e, instances[e.target.dataset.name])}); //list the instances
 
@@ -93,7 +117,7 @@ function dispData(e, instance) {
     // calculating averages 
     instance.forEach((day) => {
         avgCost += Number(day.Cost);
-        overallCost += Number(day.Cost)
+        overallCost += Number(day.Cost);
 
         avgConsumption += Number(day.ConsumedQuantity);
         overallConsumption += Number(day.ConsumedQuantity);

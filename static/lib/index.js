@@ -1,161 +1,155 @@
 
 
-
 function init() {
-    buttons = document.querySelectorAll('.filter-by');
+  const buttons = document.querySelectorAll('.filter-by');
 
-    buttons.forEach((button) => button.addEventListener('click', getAndDispOptions))
+  buttons.forEach((button) => button.addEventListener('click', getAndDispOptions));
 }
 
 
-function createList(options, parentNode, eventFunction){
-    const newOptions = document.createElement('div');
-    newOptions.classList.add('options');
-    options.forEach((opt) => {
-        const buttonBox = document.createElement('div');
-        const newButton = document.createElement('button');
-        newButton.textContent = opt;
-        newButton.dataset.name = opt;
-        buttonBox.dataset.name = opt;
+function createList(options, parentNode, eventFunction) {
+  const newOptions = document.createElement('div');
+  newOptions.classList.add('options');
+  options.forEach((opt) => {
+    const buttonBox = document.createElement('div');
+    const newButton = document.createElement('button');
+    newButton.textContent = opt;
+    newButton.dataset.name = opt;
+    buttonBox.dataset.name = opt;
 
-        buttonBox.appendChild(newButton);
-        newOptions.appendChild(buttonBox);
+    buttonBox.appendChild(newButton);
+    newOptions.appendChild(buttonBox);
 
-        newButton.addEventListener('click', eventFunction);
-    });
+    newButton.addEventListener('click', eventFunction);
+  });
 
-    parentNode.appendChild(newOptions);
+  parentNode.appendChild(newOptions);
 }
 
-async function getAndDispOptions(e){
-    let options = await fetch(`https://engineering-task.elancoapps.com/api/${e.target.dataset.name}`);
-    options = await options.json();
+async function getAndDispOptions(e) {
+  let options = await fetch(`https://engineering-task.elancoapps.com/api/${e.target.dataset.name}`);
+  options = await options.json();
 
-    parentNode = e.target.parentNode;
+  const parentNode = e.target.parentNode;
 
-    createList(options, parentNode, (clickedButton) => {getAndDispInstances(clickedButton, e.target)});
-
+  createList(options, parentNode, (clickedButton) => { getAndDispInstances(clickedButton, e.target); });
 }
 
 async function getAndDispInstances(node, parentNode) {
+  let data = await fetch(`https://engineering-task.elancoapps.com/api/${parentNode.dataset.name}/${node.target.dataset.name}`);
+  data = await data.json(); // fetch api dataset
 
-    let data = await fetch(`https://engineering-task.elancoapps.com/api/${parentNode.dataset.name}/${node.target.dataset.name}`);
-    data = await data.json(); //fetch api dataset
+  const instances = {}; // seperate out the instances
+  let oldInstance = null;
+  for (let i = 0; i < data.length; i++) {
+    const currentData = data[i];
+    const currentInstance = currentData.InstanceId;
 
-    const instances = {} //seperate out the instances
-    let oldInstance = null;
-    for (let i = 0; i < data.length; i++) {
-        const currentData = data[i];
-        const currentInstance = currentData.InstanceId
-
-        if (currentInstance === oldInstance) {
-            instances[currentInstance].push(data[i]);
-        } else {
-            instances[currentInstance] = [];
-            instances[currentInstance].push(data[i]);
-        }
-
-        oldInstance = currentInstance;
+    if (currentInstance === oldInstance) {
+      instances[currentInstance].push(data[i]);
+    } else {
+      instances[currentInstance] = [];
+      instances[currentInstance].push(data[i]);
     }
 
-    console.log(instances)
+    oldInstance = currentInstance;
+  }
 
-    // Create instance information
-    // Get instances information
-    const name = parentNode.dataset.name;
-    const amtOfInstances = Object.keys(instances).length;
-    let totalCost = 0;
-    let avgCost = 0;
+  console.log(instances);
 
-    for (let i = 0; i < data.length; i++) {
-        totalCost += Number(data[i].Cost);
-        avgCost += Number(data[i].Cost);
-    };
+  // Create instance information
+  // Get instances information
+  const name = parentNode.dataset.name;
+  const amtOfInstances = Object.keys(instances).length;
+  let totalCost = 0;
+  let avgCost = 0;
 
-    avgCost = avgCost / data.length;
+  for (let i = 0; i < data.length; i++) {
+    totalCost += Number(data[i].Cost);
+    avgCost += Number(data[i].Cost);
+  }
 
-    // display information
-    const instanceInfoTemplate = document.querySelector('#instance-template');
-    const clonedinstanceInfoTemplate = instanceInfoTemplate.content.cloneNode(true);
+  avgCost = avgCost / data.length;
 
-    clonedinstanceInfoTemplate.querySelector('#instance-title').textContent += name;
-    clonedinstanceInfoTemplate.querySelector('#amt-of-instances').textContent += amtOfInstances;
-    clonedinstanceInfoTemplate.querySelector('#total-cost').textContent += totalCost.toFixed(2);
-    clonedinstanceInfoTemplate.querySelector('#avg-cost').textContent += avgCost.toFixed(2);
+  // display information
+  const instanceInfoTemplate = document.querySelector('#instance-template');
+  const clonedinstanceInfoTemplate = instanceInfoTemplate.content.cloneNode(true);
 
-    node.target.parentNode.appendChild(clonedinstanceInfoTemplate);
+  clonedinstanceInfoTemplate.querySelector('#instance-title').textContent += name;
+  clonedinstanceInfoTemplate.querySelector('#amt-of-instances').textContent += amtOfInstances;
+  clonedinstanceInfoTemplate.querySelector('#total-cost').textContent += totalCost.toFixed(2);
+  clonedinstanceInfoTemplate.querySelector('#avg-cost').textContent += avgCost.toFixed(2);
 
-    createList(Object.keys(instances), node.target.parentNode, (e) => {dispData(e, instances[e.target.dataset.name])}); //list the instances
+  node.target.parentNode.appendChild(clonedinstanceInfoTemplate);
 
+  createList(Object.keys(instances), node.target.parentNode, (e) => { dispData(e, instances[e.target.dataset.name]); }); // list the instances
 }
 
 function dispData(e, instance) {
-    // pull data from the instance
+  // pull data from the instance
 
-    // Instance information
-    const serviceName = instance[0]["ServiceName"];
-    const loc = instance[0]["Location"];
-    const unitOfMeasure = instance[0]["UnitOfMeasure"];
+  // Instance information
+  const serviceName = instance[0].ServiceName;
+  const loc = instance[0].Location;
+  const unitOfMeasure = instance[0].UnitOfMeasure;
 
-    //resource information
-    const resource = instance[0]["MeterCategory"];
-    const resourceGroup = instance[0]['ResourceGroup'];
-    const resourceLocal = instance[0]['ResourceLocation'];
+  // resource information
+  const resource = instance[0].MeterCategory;
+  const resourceGroup = instance[0].ResourceGroup;
+  const resourceLocal = instance[0].ResourceLocation;
 
-    // App information
-    const appName = instance[0].Tags["app-name"];
-    const env = instance[0].Tags["environment"];
-    const businessUnit = instance[0].Tags["business-unit"];
+  // App information
+  const appName = instance[0].Tags['app-name'];
+  const env = instance[0].Tags.environment;
+  const businessUnit = instance[0].Tags['business-unit'];
 
-    // Cost information
-    const daysRan = instance.length;
-    let avgCost = 0;
-    let overallCost = 0;
-    let avgConsumption = 0;
-    let overallConsumption = 0;
+  // Cost information
+  const daysRan = instance.length;
+  let avgCost = 0;
+  let overallCost = 0;
+  let avgConsumption = 0;
+  let overallConsumption = 0;
 
-    // calculating averages 
-    instance.forEach((day) => {
-        avgCost += Number(day.Cost);
-        overallCost += Number(day.Cost);
+  // calculating averages
+  instance.forEach((day) => {
+    avgCost += Number(day.Cost);
+    overallCost += Number(day.Cost);
 
-        avgConsumption += Number(day.ConsumedQuantity);
-        overallConsumption += Number(day.ConsumedQuantity);
-    });
+    avgConsumption += Number(day.ConsumedQuantity);
+    overallConsumption += Number(day.ConsumedQuantity);
+  });
 
-    avgCost = avgCost / instance.length;
-    avgConsumption = avgConsumption / instance.length;
-    console.log(avgConsumption)
-    // put data into template
-    const dataTemplate = document.querySelector('#data-template');
-    const clonedDataTemplate = dataTemplate.content.cloneNode(true);
-
-
-    //Instance information
-    clonedDataTemplate.querySelector('#service-name').textContent += serviceName;
-    clonedDataTemplate.querySelector('#loc').textContent += loc;
-    clonedDataTemplate.querySelector('#unit-of-measure').textContent += unitOfMeasure;
-
-    // Resource information
-    clonedDataTemplate.querySelector('#resource-name').textContent += resource;
-    clonedDataTemplate.querySelector('#resource-group').textContent += resourceGroup;
-    clonedDataTemplate.querySelector('#res-loc').textContent += resourceLocal;
-    
-    // App information
-    clonedDataTemplate.querySelector('#app-name').textContent += appName;
-    clonedDataTemplate.querySelector('#env').textContent += env;
-    clonedDataTemplate.querySelector('#business-unit').textContent += businessUnit;
-
-    // Cost information
-    clonedDataTemplate.querySelector('#days-ran').textContent += daysRan;
-    clonedDataTemplate.querySelector('#overall-cost').textContent += overallCost.toFixed(2);
-    clonedDataTemplate.querySelector('#average-cost').textContent += avgCost.toFixed(2);
-    clonedDataTemplate.querySelector('#overall-consumed').textContent += overallConsumption
-    clonedDataTemplate.querySelector('#average-consumption').textContent += avgConsumption
+  avgCost = avgCost / instance.length;
+  avgConsumption = avgConsumption / instance.length;
+  console.log(avgConsumption);
+  // put data into template
+  const dataTemplate = document.querySelector('#data-template');
+  const clonedDataTemplate = dataTemplate.content.cloneNode(true);
 
 
+  // Instance information
+  clonedDataTemplate.querySelector('#service-name').textContent += serviceName;
+  clonedDataTemplate.querySelector('#loc').textContent += loc;
+  clonedDataTemplate.querySelector('#unit-of-measure').textContent += unitOfMeasure;
 
-    e.target.parentNode.appendChild(clonedDataTemplate);
+  // Resource information
+  clonedDataTemplate.querySelector('#resource-name').textContent += resource;
+  clonedDataTemplate.querySelector('#resource-group').textContent += resourceGroup;
+  clonedDataTemplate.querySelector('#res-loc').textContent += resourceLocal;
+
+  // App information
+  clonedDataTemplate.querySelector('#app-name').textContent += appName;
+  clonedDataTemplate.querySelector('#env').textContent += env;
+  clonedDataTemplate.querySelector('#business-unit').textContent += businessUnit;
+
+  // Cost information
+  clonedDataTemplate.querySelector('#days-ran').textContent += daysRan;
+  clonedDataTemplate.querySelector('#overall-cost').textContent += overallCost.toFixed(2);
+  clonedDataTemplate.querySelector('#average-cost').textContent += avgCost.toFixed(2);
+  clonedDataTemplate.querySelector('#overall-consumed').textContent += overallConsumption;
+  clonedDataTemplate.querySelector('#average-consumption').textContent += avgConsumption;
+
+  e.target.parentNode.appendChild(clonedDataTemplate);
 }
 
 init();

@@ -59,7 +59,7 @@ async function getAndDispInstances(node, parentNode) {
 
   // Create instance information
   // Get instances information
-  const name = parentNode.dataset.name;
+  const name = node.target.dataset.name;
   const amtOfInstances = Object.keys(instances).length;
   let totalCost = 0;
   let avgCost = 0;

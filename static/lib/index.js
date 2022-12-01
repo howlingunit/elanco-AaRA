@@ -55,7 +55,6 @@ async function getAndDispInstances(node, parentNode) {
     oldInstance = currentInstance;
   }
 
-  console.log(instances);
 
   // Create instance information
   // Get instances information
@@ -88,7 +87,10 @@ async function getAndDispInstances(node, parentNode) {
 function dispData(e, instance) {
   // pull data from the instance
 
+  console.log(instance)
+
   // Instance information
+  const instanceName = instance[0].InstanceId;
   const serviceName = instance[0].ServiceName;
   const loc = instance[0].Location;
   const unitOfMeasure = instance[0].UnitOfMeasure;
@@ -110,18 +112,30 @@ function dispData(e, instance) {
   let avgConsumption = 0;
   let overallConsumption = 0;
 
-  // calculating averages
+  const costPerDayData = [];
+  const consumptionPerDay = [];
+
+  // calculating averages and graph data
   instance.forEach((day) => {
     avgCost += Number(day.Cost);
     overallCost += Number(day.Cost);
 
     avgConsumption += Number(day.ConsumedQuantity);
     overallConsumption += Number(day.ConsumedQuantity);
+
+    costPerDayData.push({
+      x: day.Date,
+      y: Number(day.Cost)
+    });
+    consumptionPerDay.push({
+      x: day.Date,
+      y: Number(day.ConsumedQuantity)
+    });
   });
 
   avgCost = avgCost / instance.length;
   avgConsumption = avgConsumption / instance.length;
-  console.log(avgConsumption);
+
   // put data into template
   const dataTemplate = document.querySelector('#data-template');
   const clonedDataTemplate = dataTemplate.content.cloneNode(true);
@@ -149,7 +163,36 @@ function dispData(e, instance) {
   clonedDataTemplate.querySelector('#overall-consumed').textContent += overallConsumption;
   clonedDataTemplate.querySelector('#average-consumption').textContent += avgConsumption;
 
+  // append to page
   e.target.parentNode.appendChild(clonedDataTemplate);
+
+  // graph generation
+  const costGraph = document.createElement('canvas');
+  const consumptionGraph = document.createElement('canvas');
+
+
+  new Chart(costGraph, {
+    type: 'bar',
+    data: {
+      datasets: [{
+        label: 'cost per day',
+        data: costPerDayData,
+      }],
+    },
+  });
+
+  new Chart(consumptionGraph, {
+    type: 'bar',
+    data: {
+      datasets: [{
+        label: 'consumption per day',
+        data: consumptionPerDay,
+      }],
+    },
+  });
+
+  e.target.parentNode.appendChild(costGraph); // needs to be out of template because chart.js cannot get computedStyle
+  e.target.parentNode.appendChild(consumptionGraph);
 }
 
 init();

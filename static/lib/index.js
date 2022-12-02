@@ -1,3 +1,4 @@
+/* eslint-disable no-new */
 
 
 function init() {
@@ -87,10 +88,9 @@ async function getAndDispInstances(node, parentNode) {
 function dispData(e, instance) {
   // pull data from the instance
 
-  console.log(instance)
+  console.log(instance);
 
   // Instance information
-  const instanceName = instance[0].InstanceId;
   const serviceName = instance[0].ServiceName;
   const loc = instance[0].Location;
   const unitOfMeasure = instance[0].UnitOfMeasure;
@@ -117,19 +117,21 @@ function dispData(e, instance) {
 
   // calculating averages and graph data
   instance.forEach((day) => {
+    // averages
     avgCost += Number(day.Cost);
     overallCost += Number(day.Cost);
 
     avgConsumption += Number(day.ConsumedQuantity);
     overallConsumption += Number(day.ConsumedQuantity);
 
+    // graph data
     costPerDayData.push({
       x: day.Date,
-      y: Number(day.Cost)
+      y: Number(day.Cost),
     });
     consumptionPerDay.push({
       x: day.Date,
-      y: Number(day.ConsumedQuantity)
+      y: Number(day.ConsumedQuantity),
     });
   });
 
@@ -171,6 +173,7 @@ function dispData(e, instance) {
   const consumptionGraph = document.createElement('canvas');
 
 
+  // eslint-disable-next-line no-undef
   new Chart(costGraph, {
     type: 'bar',
     data: {
@@ -181,6 +184,7 @@ function dispData(e, instance) {
     },
   });
 
+  // eslint-disable-next-line no-undef
   new Chart(consumptionGraph, {
     type: 'bar',
     data: {

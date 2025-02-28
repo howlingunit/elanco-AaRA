@@ -6,7 +6,8 @@ This web application is a backend webpage that can analyse the consumption of ap
 
 This application uses frontend technologies but does come with a simple express web server.
 
-This web app is running at https://elanco.tyway.net
+This web app was running at https://elanco.tyway.net
+stopped due to api closing
 
 ## setup
 
